@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<header>
+  <h1>Library System</h1>
+  <nav>
+    <a href="index.html" class="active">Dashboard</a>
+    <a href="scan.html">Scan QR</a>
+  </nav>
+</header>
+
+<main>
+  <!-- Stat Summary Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Total Books</div>
+      <div class="value" id="stat-total">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Available</div>
+      <div class="value" id="stat-available">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Issued</div>
+      <div class="value" id="stat-issued">--</div>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #c85a5a, #a84242);">
+      <div class="label">Overdue Books</div>
+      <div class="value" id="stat-overdue">0</div>
+    </div>
+  </div>
+
+  <!-- Add Book Form -->
+  <div class="card">
+    <h2>Add New Book</h2>
+    <form id="add-book-form" class="form-grid" style="margin-top: 1rem;">
+      <input type="text" id="title" placeholder="Title" required />
+      <input type="text" id="author" placeholder="Author" required />
+      <input type="text" id="isbn" placeholder="ISBN (optional)" />
+      <input type="text" id="category" placeholder="Category" />
+      <input type="number" id="totalCopies" placeholder="Total copies" min="1" value="1" />
+      <button type="submit">Add Book</button>
+    </form>
+    <div id="message" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+  </div>
+
+  <!-- Book Catalog & Search -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Book Catalog</h2>
+      <a href="http://localhost:5000/api/transactions/export" download class="btn">Export CSV</a>
+    </div>
+
+    <div class="form-grid">
+      <input type="text" id="filter-title" placeholder="Search title..." />
+      <input type="text" id="filter-author" placeholder="Search author..." />
+      <input type="text" id="filter-category" placeholder="Search category..." />
+      <select id="filter-status">
+        <option value="">All Statuses</option>
+        <option value="Available">Available</option>
+        <option value="Issued">Issued</option>
+      </select>
+      <button id="search-btn" type="button">Filter</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>QR</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Category</th>
+            <th>Copies</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="books-table-body">
+          <!-- Rows render via script.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Active Transactions & Borrower Log -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Active Borrowers & Transaction History</h2>
+      <button id="clear-history-btn" type="button" class="danger">Clear Returned Logs</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Book Title</th>
+            <th>Book ID</th>
+            <th>Borrower</th>
+            <th>Issued Date</th>
+            <th>Return Date</th>
+            <th>Status / Overdue</th>
+          </tr>
+        </thead>
+        <tbody id="transactions-table-body">
+          <!-- Transaction rows render via script.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Floating AI Assistant Widget -->
+<div id="ai-widget-toggle">✨ AI Assistant</div>
+<div id="ai-chat-box" class="card">
+  <div class="ai-header">
+    <strong>✨ Library AI Assistant</strong>
+    <span id="ai-close">&times;</span>
+  </div>
+  <div id="ai-messages">
+    <div class="ai-msg bot">Hello! Ask me about available books, overdue borrowings, or book recommendations.</div>
+  </div>
+  <div class="ai-input-row">
+    <input type="text" id="ai-input" placeholder="Ask AI e.g. Who borrowed Harry Potter?" />
+    <button id="ai-send-btn">Send</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

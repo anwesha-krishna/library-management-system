@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Check In / Out - Library Register</title>
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<header>
+  <h1>Library System</h1>
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="scan.html" class="active">Scan QR</a>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Scan a Book's Tag</h2>
+    <p class="hint" style="color: var(--text-muted); margin-bottom: 1rem;">Point the camera at a book's QR tag, then issue it to a borrower or check it back in.</p>
+
+    <div id="reader"></div>
+    <div id="scan-result" style="margin-top: 1rem; font-weight: 600;"></div>
+
+    <div id="action-panel" style="display:none; margin-top: 1.5rem;">
+      <p style="margin-bottom: 0.75rem;">Scanned tag: <strong id="scanned-id"></strong></p>
+      <div class="form-grid">
+        <input type="text" id="borrower-name" placeholder="Borrower name (for issuing)" />
+        <input type="date" id="issue-date" placeholder="Issue Date" />
+        <button id="issue-btn" type="button">Issue Book</button>
+        <button id="return-btn" type="button" class="secondary">Check In</button>
+      </div>
+    </div>
+
+    <button id="restart-scan" type="button" class="secondary" style="margin-top: 1.5rem;">Restart Camera</button>
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+  let lastScannedId = null;
+  let html5QrCode;
+
+  function showScanMessage(text, isError) {
+    const el = document.getElementById('scan-result');
+    el.textContent = text;
+    el.style.color = isError ? 'var(--accent-rose)' : 'var(--accent-sage)';
+  }
+
+  function onScanSuccess(decodedText) {
+    lastScannedId = decodedText.trim();
+    document.getElementById('scanned-id').textContent = lastScannedId;
+    document.getElementById('action-panel').style.display = 'block';
+    showScanMessage(`Scanned tag ${lastScannedId}`, false);
+  }
+
+  function startScanner() {
+    html5QrCode = new Html5Qrcode('reader');
+    Html5Qrcode.getCameras().then((cameras) => {
+      if (cameras && cameras.length) {
+        html5QrCode.start(
+          { facingMode: 'environment' },
+          { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+          },
+          onScanSuccess
+        );
+      } else {
+        showScanMessage('No camera found on this device.', true);
+      }
+    }).catch(() => {
+      showScanMessage('Camera access denied or unavailable.', true);
+    });
+  }
+
+  document.getElementById('restart-scan').addEventListener('click', () => {
+    if (html5QrCode) {
+      html5QrCode.stop().then(startScanner).catch(startScanner);
+    } else {
+      startScanner();
+    }
+  });
+
+  document.getElementById('issue-btn').addEventListener('click', async () => {
+    const borrowerName = document.getElementById('borrower-name').value.trim();
+    const customIssueDate = document.getElementById('issue-date').value;
+    
+    if (!lastScannedId) return showScanMessage('Scan a tag first.', true);
+    if (!borrowerName) return showScanMessage('Enter a borrower name to issue.', true);
+
+    try {
+      const res = await fetch(`${API_BASE}/transactions/issue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          bookId: lastScannedId, 
+          borrowerName,
+          issueDate: customIssueDate || undefined 
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to issue book.');
+      showScanMessage(`Issued "${data.bookTitle}" to ${data.borrowerName}.`, false);
+    } catch (err) {
+      showScanMessage(err.message, true);
+    }
+  });
+
+  document.getElementById('return-btn').addEventListener('click', async () => {
+    if (!lastScannedId) return showScanMessage('Scan a tag first.', true);
+
+    try {
+      const res = await fetch(`${API_BASE}/transactions/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookId: lastScannedId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to return book.');
+      showScanMessage(`Checked in "${data.bookTitle}".`, false);
+    } catch (err) {
+      showScanMessage(err.message, true);
+    }
+  });
+
+  startScanner();
+</script>
+</body>
+</html>
