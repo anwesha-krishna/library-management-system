@@ -20,6 +20,7 @@ A full-stack web app for librarians to manage books and track issue/return activ
 - **Deployment:** Render (backend), Vercel (frontend)
 
 ## Project Structure
+```text
 library-system/
 ├── server/
 │ ├── models/ Book.js, Transaction.js
@@ -33,6 +34,7 @@ library-system/
 ├── scan.html QR scanner: issue/return
 ├── script.js
 └── style.css
+```
 
 ## Features Implemented
 
