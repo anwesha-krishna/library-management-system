@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://library-management-system-8s6h.onrender.com/api';
 
 function showMessage(text, isError) {
   const el = document.getElementById('message');
