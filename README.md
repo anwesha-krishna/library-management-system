@@ -103,3 +103,7 @@ Open `client/index.html` with VS Code's Live Server extension (camera access nee
 - MongoDB connection strings: Used standard connection URIs instead of mongodb+srv:// to bypass network-level DNS SRV record blocking.
 - Cross-origin deployment: Configured CORS headers on backend APIs deployed across separate platforms (Vercel + Render).
 - LLM context grounding: Injected real-time database state into prompts before each request for accurate response generation.
+
+
+
+Co-authored by: Sujoy Behera <beherasujoy@gmail.com>
